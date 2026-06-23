@@ -1,0 +1,20 @@
+{
+  "name": "KPSS Lisans Geri Sayım",
+  "short_name": "KPSS Sayaç",
+  "description": "KPSS Lisans sınavına kalan süreyi canlı gösteren modern geri sayım sayacı.",
+  "lang": "tr-TR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#F58220",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23ffffff'/%3E%3Ccircle cx='214' cy='236' r='132' fill='%23F58220'/%3E%3Cpath d='M214 104h132v132H214z' fill='%23ffffff'/%3E%3Cpath d='M304 202h92v38h-92zM304 262h126v38H304zM304 322h104v30H304z' fill='%23111111'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -10,6 +10,11 @@ const timeParts = {
 const examDateText = document.getElementById("examDateText");
 const statusText = document.getElementById("statusText");
 const themeToggle = document.getElementById("themeToggle");
+const customizerToggle = document.getElementById("customizerToggle");
+const customizerPanel = document.getElementById("customizerPanel");
+const customizerClose = document.getElementById("customizerClose");
+const customizerOverlay = document.getElementById("customizerOverlay");
+const themeOptBtns = document.querySelectorAll(".theme-opt-btn");
 const targetDate = new Date(EXAM_TARGET_DATE);
 let previousValues = {};
 
@@ -97,7 +102,64 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// Background customizer logic
+function openCustomizer() {
+  customizerPanel.setAttribute("aria-hidden", "false");
+  customizerClose.focus();
+  document.addEventListener("keydown", handleEscapeKey);
+}
+
+function closeCustomizer() {
+  customizerPanel.setAttribute("aria-hidden", "true");
+  customizerToggle.focus();
+  document.removeEventListener("keydown", handleEscapeKey);
+}
+
+function handleEscapeKey(e) {
+  if (e.key === "Escape") {
+    closeCustomizer();
+  }
+}
+
+function getInitialBgTheme() {
+  const savedBg = localStorage.getItem("bg-theme");
+  if (savedBg) return savedBg;
+  return "default";
+}
+
+function applyBgTheme(themeId) {
+  if (themeId === "default") {
+    document.body.removeAttribute("data-bg-theme");
+  } else {
+    document.body.setAttribute("data-bg-theme", themeId);
+  }
+  
+  themeOptBtns.forEach(btn => {
+    if (btn.dataset.themeId === themeId) {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  });
+}
+
+// Event Listeners for Customizer
+customizerToggle.addEventListener("click", openCustomizer);
+customizerClose.addEventListener("click", closeCustomizer);
+customizerOverlay.addEventListener("click", closeCustomizer);
+
+themeOptBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    const themeId = btn.dataset.themeId;
+    applyBgTheme(themeId);
+    localStorage.setItem("bg-theme", themeId);
+  });
+});
+
+// Initialize themes
 applyTheme(getInitialTheme());
+applyBgTheme(getInitialBgTheme());
+
 themeToggle.addEventListener("click", () => {
   const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   localStorage.setItem("theme", nextTheme);

@@ -96,8 +96,6 @@ body::before {
   width: 48px;
   height: 48px;
   object-fit: contain;
-  border-radius: 10px;
-  box-shadow: 0 8px 18px rgba(245, 130, 32, 0.22);
 }
 
 .theme-toggle {
@@ -180,10 +178,9 @@ h1 {
 .countdown-card {
   width: min(860px, 100%);
   padding: clamp(24px, 4vw, 44px);
-  border: 1px solid rgba(245, 130, 32, 0.14);
   border-radius: 18px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  background: transparent;
+  box-shadow: none;
   animation: fadeIn 650ms ease both;
 }
 
@@ -305,7 +302,6 @@ h1 {
   .brand-mark {
     width: 42px;
     height: 42px;
-    border-radius: 8px;
   }
 
   .theme-toggle {

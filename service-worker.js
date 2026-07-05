@@ -1,4 +1,4 @@
-const CACHE_NAME = "kpss-geri-sayim-v1";
+const CACHE_NAME = "kpss-geri-sayim-v2";
 const ASSETS = [
   "./",
   "./index.html",

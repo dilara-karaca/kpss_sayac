@@ -18,12 +18,11 @@ const themeOptBtns = document.querySelectorAll(".theme-opt-btn");
 const targetDate = new Date(EXAM_TARGET_DATE);
 let previousValues = {};
 
-function getInitialTheme() {
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark" || savedTheme === "light") {
-    return savedTheme;
-  }
+/* ─── Light / dark tema ──────────────────────────────────────────────────── */
 
+function getInitialTheme() {
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark" || saved === "light") return saved;
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
@@ -32,77 +31,232 @@ function applyTheme(theme) {
   themeToggle.setAttribute("aria-label", theme === "dark" ? "Açık modu aç" : "Koyu modu aç");
 }
 
-function padNumber(value, length = 2) {
-  return String(value).padStart(length, "0");
+themeToggle.addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  localStorage.setItem("theme", next);
+  applyTheme(next);
+});
+
+/* ─── Geri sayım ─────────────────────────────────────────────────────────── */
+
+function padNumber(v, len = 2) {
+  return String(v).padStart(len, "0");
 }
 
 function formatExamDate(date) {
   return new Intl.DateTimeFormat("tr-TR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Istanbul"
+    day: "2-digit", month: "long", year: "numeric",
+    hour: "2-digit", minute: "2-digit", timeZone: "Europe/Istanbul"
   }).format(date);
 }
 
-function setValue(element, value, key) {
-  if (previousValues[key] === value) {
-    return;
-  }
-
-  element.classList.remove("is-changing");
-  void element.offsetWidth;
-  element.textContent = value;
-  element.classList.add("is-changing");
-
-  window.setTimeout(() => {
-    element.classList.remove("is-changing");
-  }, 160);
-
+function setValue(el, value, key) {
+  if (previousValues[key] === value) return;
+  el.classList.remove("is-changing");
+  void el.offsetWidth;
+  el.textContent = value;
+  el.classList.add("is-changing");
+  setTimeout(() => el.classList.remove("is-changing"), 160);
   previousValues[key] = value;
 }
 
 function updateCountdown() {
-  const now = new Date();
-  const difference = targetDate.getTime() - now.getTime();
-
-  if (Number.isNaN(targetDate.getTime())) {
+  const diff = targetDate.getTime() - Date.now();
+  if (isNaN(targetDate.getTime())) {
     statusText.textContent = "Hedef tarih geçerli değil.";
     return;
   }
-
-  if (difference <= 0) {
-    setValue(timeParts.days, "0", "days");
-    setValue(timeParts.hours, "00", "hours");
-    setValue(timeParts.minutes, "00", "minutes");
-    setValue(timeParts.seconds, "00", "seconds");
+  if (diff <= 0) {
+    ["days", "hours", "minutes", "seconds"].forEach(k =>
+      setValue(timeParts[k], k === "days" ? "0" : "00", k)
+    );
     statusText.textContent = "KPSS Lisans sınav zamanı geldi.";
     return;
   }
-
-  const totalSeconds = Math.floor(difference / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  setValue(timeParts.days, String(days), "days");
-  setValue(timeParts.hours, padNumber(hours), "hours");
-  setValue(timeParts.minutes, padNumber(minutes), "minutes");
-  setValue(timeParts.seconds, padNumber(seconds), "seconds");
-
+  const tot = Math.floor(diff / 1000);
+  setValue(timeParts.days, String(Math.floor(tot / 86400)), "days");
+  setValue(timeParts.hours, padNumber(Math.floor((tot % 86400) / 3600)), "hours");
+  setValue(timeParts.minutes, padNumber(Math.floor((tot % 3600) / 60)), "minutes");
+  setValue(timeParts.seconds, padNumber(tot % 60), "seconds");
   statusText.textContent = "Sayaç her saniye otomatik güncellenir.";
 }
 
+examDateText.textContent = `Hedef sınav tarihi: ${formatExamDate(targetDate)}`;
+updateCountdown();
+setInterval(updateCountdown, 1000);
+
+/* ─── Service Worker ─────────────────────────────────────────────────────── */
+
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js");
+  window.addEventListener("load", () => navigator.serviceWorker.register("service-worker.js"));
+}
+
+/* ─── Canvas arka plan animasyonları ─────────────────────────────────────── */
+
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+let animId = null;
+let currentBgTheme = "default";
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", () => {
+  resizeCanvas();
+  // Aktif temaya göre partikülleri yeniden oluştur
+  if (currentBgTheme === "starfield") initStarfield();
+  if (currentBgTheme === "plexus") initPlexus();
+});
+resizeCanvas();
+
+/* ── Canvas stilini sıfırla ─── */
+function resetCanvas() {
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  canvas.style.display = "none";
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   YİLDIZLI UZAY — parıldayan yıldızlar
+   ══════════════════════════════════════════════════════════════════════════ */
+
+let stars = [];
+
+function initStarfield() {
+  const count = Math.floor((canvas.width * canvas.height) / 3000);
+  stars = Array.from({ length: count }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.4 + 0.3,
+    alpha: Math.random(),
+    delta: (Math.random() * 0.008 + 0.003) * (Math.random() < 0.5 ? 1 : -1),
+    color: Math.random() < 0.15
+      ? `hsl(${220 + Math.random() * 40}, 80%, 90%)`
+      : "#ffffff"
+  }));
+}
+
+function drawStarfield() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const s of stars) {
+    s.alpha += s.delta;
+    if (s.alpha >= 1) { s.alpha = 1; s.delta = -Math.abs(s.delta); }
+    if (s.alpha <= 0) { s.alpha = 0; s.delta = Math.abs(s.delta); }
+
+    ctx.save();
+    ctx.globalAlpha = s.alpha;
+    ctx.fillStyle = s.color;
+    ctx.shadowColor = s.color;
+    ctx.shadowBlur = s.r * 3;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  animId = requestAnimationFrame(drawStarfield);
+}
+
+function startStarfield() {
+  canvas.style.display = "block";
+  initStarfield();
+  drawStarfield();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PLEXUS — hareketli noktalar ve yakınlaşınca bağlantı çizgileri
+   ══════════════════════════════════════════════════════════════════════════ */
+
+let nodes = [];
+const NODE_COUNT = 80;
+const MAX_DIST = 140;
+const NODE_COLOR = "rgba(245,130,32,";   // turuncu
+const LINE_BASE = "rgba(245,130,32,";
+
+function initPlexus() {
+  nodes = Array.from({ length: NODE_COUNT }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    vx: (Math.random() - 0.5) * 0.6,
+    vy: (Math.random() - 0.5) * 0.6,
+    r: Math.random() * 1.8 + 1
+  }));
+}
+
+function drawPlexus() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Noktaları güncelle ve sınır yansıması
+  for (const n of nodes) {
+    n.x += n.vx;
+    n.y += n.vy;
+    if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+    if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+  }
+
+  // Bağlantı çizgileri
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const dx = nodes[i].x - nodes[j].x;
+      const dy = nodes[i].y - nodes[j].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < MAX_DIST) {
+        const alpha = (1 - dist / MAX_DIST) * 0.55;
+        ctx.beginPath();
+        ctx.strokeStyle = LINE_BASE + alpha + ")";
+        ctx.lineWidth = 0.8;
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Noktalar
+  for (const n of nodes) {
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+    ctx.fillStyle = NODE_COLOR + "0.85)";
+    ctx.shadowColor = NODE_COLOR + "0.6)";
+    ctx.shadowBlur = 6;
+    ctx.fill();
+  }
+
+  animId = requestAnimationFrame(drawPlexus);
+}
+
+function startPlexus() {
+  canvas.style.display = "block";
+  initPlexus();
+  drawPlexus();
+}
+
+/* ─── Arka plan tema uygulama ────────────────────────────────────────────── */
+
+function getInitialBgTheme() {
+  return localStorage.getItem("bg-theme") || "default";
+}
+
+function applyBgTheme(themeId) {
+  currentBgTheme = themeId;
+  resetCanvas();
+
+  if (themeId === "default") {
+    document.body.removeAttribute("data-bg-theme");
+  } else {
+    document.body.setAttribute("data-bg-theme", themeId);
+  }
+
+  if (themeId === "starfield") startStarfield();
+  if (themeId === "plexus") startPlexus();
+
+  themeOptBtns.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.themeId === themeId);
   });
 }
 
-// Background customizer logic
+/* ─── Customizer panel ───────────────────────────────────────────────────── */
+
 function openCustomizer() {
   customizerPanel.setAttribute("aria-hidden", "false");
   customizerClose.focus();
@@ -116,56 +270,21 @@ function closeCustomizer() {
 }
 
 function handleEscapeKey(e) {
-  if (e.key === "Escape") {
-    closeCustomizer();
-  }
+  if (e.key === "Escape") closeCustomizer();
 }
 
-function getInitialBgTheme() {
-  const savedBg = localStorage.getItem("bg-theme");
-  if (savedBg) return savedBg;
-  return "default";
-}
-
-function applyBgTheme(themeId) {
-  if (themeId === "default") {
-    document.body.removeAttribute("data-bg-theme");
-  } else {
-    document.body.setAttribute("data-bg-theme", themeId);
-  }
-  
-  themeOptBtns.forEach(btn => {
-    if (btn.dataset.themeId === themeId) {
-      btn.classList.add("active");
-    } else {
-      btn.classList.remove("active");
-    }
-  });
-}
-
-// Event Listeners for Customizer
 customizerToggle.addEventListener("click", openCustomizer);
 customizerClose.addEventListener("click", closeCustomizer);
 customizerOverlay.addEventListener("click", closeCustomizer);
 
 themeOptBtns.forEach(btn => {
   btn.addEventListener("click", () => {
-    const themeId = btn.dataset.themeId;
-    applyBgTheme(themeId);
-    localStorage.setItem("bg-theme", themeId);
+    const id = btn.dataset.themeId;
+    applyBgTheme(id);
+    localStorage.setItem("bg-theme", id);
   });
 });
 
-// Initialize themes
+/* ─── İlk yükleme ────────────────────────────────────────────────────────── */
 applyTheme(getInitialTheme());
 applyBgTheme(getInitialBgTheme());
-
-themeToggle.addEventListener("click", () => {
-  const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-  localStorage.setItem("theme", nextTheme);
-  applyTheme(nextTheme);
-});
-
-examDateText.textContent = `Hedef sınav tarihi: ${formatExamDate(targetDate)}`;
-updateCountdown();
-window.setInterval(updateCountdown, 1000);

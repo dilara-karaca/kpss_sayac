@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="KPSS Lisans sınavına kalan süreyi gün, saat, dakika ve saniye olarak canlı gösteren modern KPSS geri sayım sayacı.">
+  <meta name="description"
+    content="KPSS Lisans sınavına kalan süreyi gün, saat, dakika ve saniye olarak canlı gösteren modern KPSS geri sayım sayacı.">
   <meta name="keywords" content="KPSS Geri Sayım, KPSS Sayaç, KPSS 2026, KPSS 2027, KPSS Ne Kadar Kaldı">
   <meta name="author" content="KPSS Geri Sayım">
   <meta name="theme-color" content="#F58220">
@@ -17,6 +19,7 @@
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <canvas id="bgCanvas"></canvas>
   <header class="site-header">
@@ -28,19 +31,25 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="customizer-toggle" id="customizerToggle" type="button" aria-label="Arka planı özelleştir" title="Arka planı özelleştir">
-          <svg class="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.32832 19.4797 5.5632 19.7196 5.59296 19.9868C5.62272 20.2541 5.44199 20.4999 5.08053 20.9916L4.54228 21.7237C4.1952 22.1957 4.02166 22.4317 4.10887 22.6517C4.19608 22.8718 4.47547 22.9463 5.03426 23.0953C6.73604 23.5492 8.44144 23.0039 9.75704 21.9918C10.0264 21.7844 10.1611 21.6807 10.3806 21.6807H11.5" />
-            <circle cx="7.5" cy="10.5" r="1.5" fill="currentColor"/>
-            <circle cx="11.5" cy="7.5" r="1.5" fill="currentColor"/>
-            <circle cx="16.5" cy="9.5" r="1.5" fill="currentColor"/>
-            <circle cx="15.5" cy="14.5" r="1.5" fill="currentColor"/>
+        <button class="customizer-toggle" id="customizerToggle" type="button" aria-label="Arka planı özelleştir"
+          title="Arka planı özelleştir">
+          <!-- Palet ikonu -->
+          <svg class="palette-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path
+              d="M12 2a10 10 0 0 0 0 20c1.1 0 2-.9 2-2v-.5a1 1 0 0 0-1-1H12a5 5 0 0 1 0-10h5.5a.5.5 0 0 1 .5.5V10a2 2 0 0 0 4 0 10 10 0 0 0-10-8z" />
+            <circle cx="7" cy="11.5" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="10" cy="7.5" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="14" cy="7.5" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="17" cy="11" r="1.2" fill="currentColor" stroke="none" />
           </svg>
         </button>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="Koyu modu aç" title="Tema değiştir">
           <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="12" cy="12" r="4"></circle>
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+            <path
+              d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41">
+            </path>
           </svg>
           <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M21 13.2A7.5 7.5 0 1 1 10.8 3a6.2 6.2 0 0 0 10.2 10.2Z"></path>
@@ -86,7 +95,8 @@
   </footer>
 
   <!-- Arka Plan Özelleştirme Paneli -->
-  <div class="customizer-panel" id="customizerPanel" aria-hidden="true" role="dialog" aria-labelledby="customizer-title">
+  <div class="customizer-panel" id="customizerPanel" aria-hidden="true" role="dialog"
+    aria-labelledby="customizer-title">
     <div class="customizer-overlay" id="customizerOverlay"></div>
     <div class="customizer-content">
       <div class="customizer-header">
@@ -108,13 +118,13 @@
             <div class="theme-preview theme-preview-rainbow"></div>
             <span class="theme-opt-label">Gökkuşağı</span>
           </button>
-          <button class="theme-opt-btn" data-theme-id="stars" type="button">
-            <div class="theme-preview theme-preview-stars"></div>
-            <span class="theme-opt-label">Yıldızlı Gece</span>
+          <button class="theme-opt-btn" data-theme-id="starfield" type="button">
+            <div class="theme-preview theme-preview-starfield"></div>
+            <span class="theme-opt-label">Yıldızlı Uzay</span>
           </button>
           <button class="theme-opt-btn" data-theme-id="plexus" type="button">
             <div class="theme-preview theme-preview-plexus"></div>
-            <span class="theme-opt-label">Ağ Bağlantısı</span>
+            <span class="theme-opt-label">Plexus</span>
           </button>
         </div>
       </div>
@@ -123,4 +133,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>

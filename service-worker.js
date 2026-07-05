@@ -1,9 +1,9 @@
-const CACHE_NAME = "kpss-geri-sayim-v3";
+const CACHE_NAME = "kpss-geri-sayim-v4";
 const ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=2.0.1",
-  "./script.js?v=2.0.1",
+  "./style.css?v=2.0.2",
+  "./script.js?v=2.0.2",
   "./manifest.json",
   "./assets/kpss_sayac.png"
 ];

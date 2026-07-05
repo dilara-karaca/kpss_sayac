@@ -9,7 +9,6 @@ const timeParts = {
 
 const examDateText = document.getElementById("examDateText");
 const statusText = document.getElementById("statusText");
-const themeToggle = document.getElementById("themeToggle");
 const customizerToggle = document.getElementById("customizerToggle");
 const customizerPanel = document.getElementById("customizerPanel");
 const customizerClose = document.getElementById("customizerClose");
@@ -18,24 +17,7 @@ const themeOptBtns = document.querySelectorAll(".theme-opt-btn");
 const targetDate = new Date(EXAM_TARGET_DATE);
 let previousValues = {};
 
-/* ─── Light / dark tema ──────────────────────────────────────────────────── */
 
-function getInitialTheme() {
-  const saved = localStorage.getItem("theme");
-  if (saved === "dark" || saved === "light") return saved;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-function applyTheme(theme) {
-  document.documentElement.dataset.theme = theme;
-  themeToggle.setAttribute("aria-label", theme === "dark" ? "Açık modu aç" : "Koyu modu aç");
-}
-
-themeToggle.addEventListener("click", () => {
-  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-  localStorage.setItem("theme", next);
-  applyTheme(next);
-});
 
 /* ─── Geri sayım ─────────────────────────────────────────────────────────── */
 
@@ -286,5 +268,4 @@ themeOptBtns.forEach(btn => {
 });
 
 /* ─── İlk yükleme ────────────────────────────────────────────────────────── */
-applyTheme(getInitialTheme());
 applyBgTheme(getInitialBgTheme());

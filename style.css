@@ -570,7 +570,7 @@ body[data-bg-theme="rainbow"] .status-text {
 /* ── 4. YILDIZLI UZAY ────────────────────────────────────────────────────── */
 /* Canvas #bgCanvas bu temada z-index -2'de render edilir (JS ile eklenir)  */
 body[data-bg-theme="starfield"] {
-  background: #030712;
+  background: transparent;
 }
 
 body[data-bg-theme="starfield"]::before {
@@ -658,7 +658,7 @@ body[data-bg-theme="starfield"] .status-text {
 /* ── 5. PLEXUS ───────────────────────────────────────────────────────────── */
 /* Canvas #bgCanvas bu temada da kullanılır (JS temayı okur, farklı render) */
 body[data-bg-theme="plexus"] {
-  background: #06060e;
+  background: transparent;
 }
 
 body[data-bg-theme="plexus"]::before {

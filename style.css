@@ -705,23 +705,17 @@ body[data-bg-theme="plexus"] .status-text {
 }
 
 /* ── 6. ÖZEL FOTOĞRAF ────────────────────────────────────────────────────── */
+/* Arka plan görseli JS ile body.style üzerine yazılır */
 body[data-bg-theme="custom"] {
-  background: #0a0a0c;
+  background-color: #0a0a0c;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 body[data-bg-theme="custom"]::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  background-color: #0a0a0c;
-  background-image:
-    linear-gradient(rgba(8, 8, 12, 0.48), rgba(8, 8, 12, 0.55)),
-    var(--custom-bg-image);
-  background-size: cover, cover;
-  background-position: center, center;
-  background-repeat: no-repeat, no-repeat;
-  mask-image: none;
+  content: none;
+  display: none;
 }
 
 body[data-bg-theme="custom"] .countdown-card {

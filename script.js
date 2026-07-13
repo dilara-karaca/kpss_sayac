@@ -288,9 +288,18 @@ function updateCustomThemePreview(dataUrl) {
 
 function setCustomBgCss(dataUrl) {
   if (dataUrl) {
-    document.documentElement.style.setProperty("--custom-bg-image", `url("${dataUrl}")`);
+    document.body.style.backgroundImage =
+      `linear-gradient(rgba(8, 8, 12, 0.48), rgba(8, 8, 12, 0.55)), url("${dataUrl}")`;
+    document.body.style.backgroundSize = "cover, cover";
+    document.body.style.backgroundPosition = "center, center";
+    document.body.style.backgroundRepeat = "no-repeat, no-repeat";
+    document.body.style.backgroundColor = "#0a0a0c";
   } else {
-    document.documentElement.style.removeProperty("--custom-bg-image");
+    document.body.style.backgroundImage = "";
+    document.body.style.backgroundSize = "";
+    document.body.style.backgroundPosition = "";
+    document.body.style.backgroundRepeat = "";
+    document.body.style.backgroundColor = "";
   }
 }
 

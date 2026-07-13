@@ -14,8 +14,18 @@ const customizerPanel = document.getElementById("customizerPanel");
 const customizerClose = document.getElementById("customizerClose");
 const customizerOverlay = document.getElementById("customizerOverlay");
 const themeOptBtns = document.querySelectorAll(".theme-opt-btn");
+const customThemeBtn = document.getElementById("customThemeBtn");
+const customThemePreview = document.getElementById("customThemePreview");
+const customBgInput = document.getElementById("customBgInput");
 const targetDate = new Date(EXAM_TARGET_DATE);
 let previousValues = {};
+let customBgDataUrl = null;
+
+const CUSTOM_BG_DB = "kpss-sayac-bg";
+const CUSTOM_BG_STORE = "images";
+const CUSTOM_BG_KEY = "custom";
+const CUSTOM_BG_MAX_EDGE = 1920;
+const CUSTOM_BG_JPEG_QUALITY = 0.82;
 
 
 
@@ -215,6 +225,118 @@ function startPlexus() {
 
 /* ─── Arka plan tema uygulama ────────────────────────────────────────────── */
 
+function openCustomBgDb() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(CUSTOM_BG_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(CUSTOM_BG_STORE)) {
+        db.createObjectStore(CUSTOM_BG_STORE);
+      }
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function saveCustomBgImage(dataUrl) {
+  const db = await openCustomBgDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(CUSTOM_BG_STORE, "readwrite");
+    tx.objectStore(CUSTOM_BG_STORE).put(dataUrl, CUSTOM_BG_KEY);
+    tx.oncomplete = () => {
+      db.close();
+      resolve();
+    };
+    tx.onerror = () => {
+      db.close();
+      reject(tx.error);
+    };
+  });
+}
+
+async function loadCustomBgImage() {
+  try {
+    const db = await openCustomBgDb();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(CUSTOM_BG_STORE, "readonly");
+      const request = tx.objectStore(CUSTOM_BG_STORE).get(CUSTOM_BG_KEY);
+      request.onsuccess = () => {
+        db.close();
+        resolve(request.result || null);
+      };
+      request.onerror = () => {
+        db.close();
+        reject(request.error);
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+function updateCustomThemePreview(dataUrl) {
+  if (!customThemePreview) return;
+  if (dataUrl) {
+    customThemePreview.style.backgroundImage = `url("${dataUrl}")`;
+    customThemePreview.classList.add("has-image");
+  } else {
+    customThemePreview.style.backgroundImage = "";
+    customThemePreview.classList.remove("has-image");
+  }
+}
+
+function setCustomBgCss(dataUrl) {
+  if (dataUrl) {
+    document.documentElement.style.setProperty("--custom-bg-image", `url("${dataUrl}")`);
+  } else {
+    document.documentElement.style.removeProperty("--custom-bg-image");
+  }
+}
+
+function processImageFile(file) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith("image/")) {
+      reject(new Error("Geçersiz görsel dosyası."));
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      let { width, height } = img;
+      const longest = Math.max(width, height);
+
+      if (longest > CUSTOM_BG_MAX_EDGE) {
+        const scale = CUSTOM_BG_MAX_EDGE / longest;
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+      }
+
+      const offscreen = document.createElement("canvas");
+      offscreen.width = width;
+      offscreen.height = height;
+      const offCtx = offscreen.getContext("2d");
+      offCtx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(objectUrl);
+
+      try {
+        resolve(offscreen.toDataURL("image/jpeg", CUSTOM_BG_JPEG_QUALITY));
+      } catch (err) {
+        reject(err);
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Görsel yüklenemedi."));
+    };
+
+    img.src = objectUrl;
+  });
+}
+
 function getInitialBgTheme() {
   return localStorage.getItem("bg-theme") || "default";
 }
@@ -229,12 +351,27 @@ function applyBgTheme(themeId) {
     document.body.setAttribute("data-bg-theme", themeId);
   }
 
+  if (themeId === "custom") {
+    setCustomBgCss(customBgDataUrl);
+  } else {
+    setCustomBgCss(null);
+  }
+
   if (themeId === "starfield") startStarfield();
   if (themeId === "plexus") startPlexus();
 
   themeOptBtns.forEach(btn => {
     btn.classList.toggle("active", btn.dataset.themeId === themeId);
   });
+}
+
+async function handleCustomBgFile(file) {
+  const dataUrl = await processImageFile(file);
+  customBgDataUrl = dataUrl;
+  updateCustomThemePreview(dataUrl);
+  await saveCustomBgImage(dataUrl);
+  applyBgTheme("custom");
+  localStorage.setItem("bg-theme", "custom");
 }
 
 /* ─── Customizer panel ───────────────────────────────────────────────────── */
@@ -262,10 +399,45 @@ customizerOverlay.addEventListener("click", closeCustomizer);
 themeOptBtns.forEach(btn => {
   btn.addEventListener("click", () => {
     const id = btn.dataset.themeId;
+
+    if (id === "custom") {
+      if (customBgDataUrl && currentBgTheme !== "custom") {
+        applyBgTheme("custom");
+        localStorage.setItem("bg-theme", "custom");
+        return;
+      }
+      customBgInput.click();
+      return;
+    }
+
     applyBgTheme(id);
     localStorage.setItem("bg-theme", id);
   });
 });
 
+customBgInput.addEventListener("change", async () => {
+  const file = customBgInput.files && customBgInput.files[0];
+  customBgInput.value = "";
+  if (!file) return;
+
+  try {
+    await handleCustomBgFile(file);
+  } catch {
+    statusText.textContent = "Fotoğraf yüklenemedi. Lütfen başka bir görsel deneyin.";
+  }
+});
+
 /* ─── İlk yükleme ────────────────────────────────────────────────────────── */
-applyBgTheme(getInitialBgTheme());
+(async function initBgTheme() {
+  customBgDataUrl = await loadCustomBgImage();
+  updateCustomThemePreview(customBgDataUrl);
+
+  const initialTheme = getInitialBgTheme();
+  if (initialTheme === "custom" && !customBgDataUrl) {
+    applyBgTheme("default");
+    localStorage.setItem("bg-theme", "default");
+    return;
+  }
+
+  applyBgTheme(initialTheme);
+})();

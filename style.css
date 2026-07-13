@@ -704,6 +704,83 @@ body[data-bg-theme="plexus"] .status-text {
   border-top-color: rgba(245, 130, 32, 0.15);
 }
 
+/* ── 6. ÖZEL FOTOĞRAF ────────────────────────────────────────────────────── */
+body[data-bg-theme="custom"] {
+  background: #0a0a0c;
+}
+
+body[data-bg-theme="custom"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: #0a0a0c;
+  background-image:
+    linear-gradient(rgba(8, 8, 12, 0.48), rgba(8, 8, 12, 0.55)),
+    var(--custom-bg-image);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  mask-image: none;
+}
+
+body[data-bg-theme="custom"] .countdown-card {
+  background: rgba(10, 10, 14, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(18px);
+}
+
+body[data-bg-theme="custom"] .countdown-card::before {
+  background: linear-gradient(90deg, #F58220, #f6c21a, #F58220);
+  background-size: 200% 100%;
+  animation: customBar 5s linear infinite;
+}
+
+@keyframes customBar {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+body[data-bg-theme="custom"] .time-box {
+  background: rgba(10, 10, 14, 0.72);
+  border-color: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+}
+
+body[data-bg-theme="custom"] .time-box:hover {
+  border-color: rgba(245, 130, 32, 0.5);
+  box-shadow: 0 0 20px rgba(245, 130, 32, 0.18);
+}
+
+body[data-bg-theme="custom"] .time-value {
+  color: #fffaf5;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+}
+
+body[data-bg-theme="custom"] .time-label {
+  color: #F58220;
+}
+
+body[data-bg-theme="custom"] .card-head h2,
+body[data-bg-theme="custom"] h1 {
+  color: #fffaf5;
+}
+
+body[data-bg-theme="custom"] .exam-date,
+body[data-bg-theme="custom"] .status-text {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+body[data-bg-theme="custom"] .status-text {
+  border-top-color: rgba(255, 255, 255, 0.12);
+}
+
 /* ==========================================================================
    Panel Yapısı
    ========================================================================== */
@@ -796,7 +873,7 @@ body[data-bg-theme="plexus"] .status-text {
   gap: 12px;
 }
 
-/* 5. tema için tek sütunlu ortalanmış son satır */
+/* Tek kalan son tema için ortalanmış satır */
 .theme-opt-btn:last-child:nth-child(odd) {
   grid-column: 1 / -1;
   max-width: 50%;
@@ -971,6 +1048,47 @@ body[data-bg-theme="plexus"] .status-text {
   100% {
     background-position: 40px 40px, -60px 60px;
   }
+}
+
+/* 6 – Karşıdan Yükle */
+.theme-preview-custom {
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(135deg, rgba(245, 130, 32, 0.12), rgba(17, 17, 17, 0.04)),
+    repeating-linear-gradient(-45deg,
+      transparent,
+      transparent 6px,
+      rgba(17, 17, 17, 0.04) 6px,
+      rgba(17, 17, 17, 0.04) 12px);
+  color: rgba(17, 17, 17, 0.45);
+}
+
+[data-theme="dark"] .theme-preview-custom {
+  background:
+    linear-gradient(135deg, rgba(245, 130, 32, 0.18), rgba(255, 255, 255, 0.04)),
+    repeating-linear-gradient(-45deg,
+      transparent,
+      transparent 6px,
+      rgba(255, 255, 255, 0.04) 6px,
+      rgba(255, 255, 255, 0.04) 12px);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.theme-preview-custom.has-image {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: transparent;
+}
+
+.theme-preview-custom.has-image .theme-preview-upload-icon {
+  display: none;
+}
+
+.theme-preview-upload-icon {
+  display: grid;
+  place-items: center;
 }
 
 /* ==========================================================================

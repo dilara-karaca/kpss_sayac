@@ -17,7 +17,7 @@
   <title>KPSS Geri Sayım | KPSS Sayaç</title>
 
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css?v=2.0.2">
+  <link rel="stylesheet" href="style.css?v=2.0.3">
 </head>
 
 <body>
@@ -94,7 +94,7 @@
         <button class="customizer-close" id="customizerClose" aria-label="Kapat" type="button">&times;</button>
       </div>
       <div class="customizer-body">
-        <p class="customizer-desc">Sitenin arka planı için bir tema seçin. Seçiminiz tarayıcınıza kaydedilecektir.</p>
+        <p class="customizer-desc">Sitenin arka planı için bir tema seçin veya kendi fotoğrafınızı yükleyin. Seçiminiz tarayıcınıza kaydedilecektir.</p>
         <div class="theme-options-grid">
           <button class="theme-opt-btn active" data-theme-id="default" type="button">
             <div class="theme-preview theme-preview-default"></div>
@@ -116,12 +116,25 @@
             <div class="theme-preview theme-preview-plexus"></div>
             <span class="theme-opt-label">Plexus</span>
           </button>
+          <button class="theme-opt-btn" data-theme-id="custom" type="button" id="customThemeBtn">
+            <div class="theme-preview theme-preview-custom" id="customThemePreview">
+              <span class="theme-preview-upload-icon" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 16V4" />
+                  <path d="M8 8l4-4 4 4" />
+                  <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+                </svg>
+              </span>
+            </div>
+            <span class="theme-opt-label">Karşıdan Yükle</span>
+          </button>
         </div>
+        <input type="file" id="customBgInput" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
       </div>
     </div>
   </div>
 
-  <script src="script.js?v=2.0.2"></script>
+  <script src="script.js?v=2.0.3"></script>
 </body>
 
 </html>
